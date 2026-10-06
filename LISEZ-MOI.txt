@@ -3,7 +3,7 @@ ZIK — lecteur de musique local (PWA)
 Une PWA doit être servie en HTTPS ou depuis localhost (un double-clic sur index.html n'active pas l'installation).
 
 Test sur ordinateur :
-  cd zik-pwa
+  cd spotifyplayer
   python3 -m http.server 8080
   puis ouvrir http://localhost:8080
 
@@ -15,8 +15,11 @@ Installation :
   Android : menu ⋮ > Installer l'application.
   iPhone (Safari) : Partager > Sur l'écran d'accueil.
 
-Vos titres sont stockés dans le navigateur (IndexedDB pour l'audio, localStorage pour la liste).
-Après modification des fichiers, changez CACHE = 'zik-v1' dans sw.js pour forcer la mise à jour.
+Les fichiers importés doivent être des MP3. Ils sont stockés sur cet appareil (IndexedDB pour l'audio,
+localStorage pour la liste). La lecture écran éteint dépend du navigateur et du système ; elle fonctionne
+avec les fichiers locaux dans les navigateurs qui prennent en charge la lecture média en arrière-plan.
+
+Après modification des fichiers, incrémentez la version CACHE dans sw.js pour forcer la mise à jour.
 
 RECHERCHE YOUTUBE (onglet YouTube)
   1. console.cloud.google.com : créer un projet.
@@ -25,4 +28,5 @@ RECHERCHE YOUTUBE (onglet YouTube)
      (l'adresse de votre site, ex. https://monsite.netlify.app/*).
   4. Dans l'app : onglet YouTube > Clé API > coller la clé.
   Quota gratuit : 10 000 unités/jour, une recherche coûte 100 unités (~100 recherches/jour).
-  La lecture passe par le lecteur officiel YouTube : les pubs YouTube ne peuvent pas être retirées.
+  La lecture passe par le lecteur vidéo officiel YouTube. Il ne peut pas être masqué ni converti en MP3
+  dans cette application ; la lecture écran éteint dépend de YouTube et du navigateur.
