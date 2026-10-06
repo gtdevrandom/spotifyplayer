@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zik</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0F1220">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Zik">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#EEF1F6;--card:#fff;--fg:#141B2D;--mut:#6A7288;--line:#D9DEE8;--acc:#E8384F;--onacc:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1220;--card:#181C30;--fg:#E9ECF5;--mut:#8D94AB;--line:#2A2F48;--acc:#FF6B7D;--onacc:#0F1220}}
+:root[data-theme="dark"]{--bg:#0F1220;--card:#181C30;--fg:#E9ECF5;--mut:#8D94AB;--line:#2A2F48;--acc:#FF6B7D;--onacc:#0F1220}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:190px}
+main{max-width:720px;margin:0 auto;padding:20px 16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+h1{margin:0;font-size:2.2rem;font-weight:800;letter-spacing:-.04em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.btn{background:var(--acc);color:var(--onacc);font-weight:600;padding:10px 16px;border-radius:999px}
+.ghost{border:1px solid var(--line);padding:8px 14px;border-radius:999px;color:var(--mut)}
+.ghost.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+#q{flex:1 1 160px;min-width:0;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit}
+ul{list-style:none;margin:0;padding:0;background:var(--card);border-radius:16px;border:1px solid var(--line);overflow:hidden}
+li{display:flex;align-items:center;border-bottom:1px solid var(--line)}
+li:last-child{border:0}
+li.cur{background:color-mix(in srgb,var(--acc) 12%,var(--card))}
+li .t{flex:1;min-width:0;text-align:left;padding:12px 14px}
+li .t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+li .t span{color:var(--mut);font-size:.85rem}
+li .i{padding:12px;color:var(--mut);font-size:1.1rem;min-width:44px}
+li .i.f{color:var(--acc)}
+.empty{padding:40px 20px;text-align:center;color:var(--mut)}
+.empty p{margin:0 0 16px}
+#foot{margin-top:16px;color:var(--mut);font-size:.8rem;text-align:center}
+#player{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+#player>div{max-width:720px;margin:0 auto}
+#now{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#now small{display:block;color:var(--mut);font-weight:400}
+.seek{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:.8rem;margin:6px 0}
+input[type=range]{flex:1;accent-color:var(--acc);min-width:0}
+.ctl{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.ctl .m{color:var(--mut);font-size:.8rem;padding:8px 6px}
+.ctl .m.on{color:var(--acc);font-weight:600}
+.ctl .n{font-size:1.4rem;padding:8px 14px}
+.ctl .p{background:var(--acc);color:var(--onacc);width:54px;height:54px;border-radius:50%;font-size:1.2rem}
+#vol{max-width:90px}
+#toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%}
+#toast.s{opacity:1}
+#drop{position:fixed;inset:0;background:color-mix(in srgb,var(--acc) 85%,transparent);color:var(--onacc);display:none;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800}
+#drop.s{display:flex}
+#vwrap{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:5;max-width:480px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;margin:0 0 12px}
+#vwrap iframe{width:100%;height:100%;border:0}
+.note{color:var(--mut);font-size:.85rem;margin:0 0 12px}
+#keybox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+#keybox p{margin:0 0 10px;font-size:.9rem;color:var(--mut)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>Zik</h1><div style="display:flex;gap:8px"><button class="ghost" id="inst" hidden>Installer</button><button class="btn" id="add">Ajouter des titres</button></div></header>
+<div id="vwrap" hidden><div id="vp"></div></div>
+<div class="bar">
+<input id="q" type="search" placeholder="Rechercher" aria-label="Rechercher">
+<button class="ghost on" id="tAll">Tout</button>
+<button class="ghost" id="tFav">Favoris</button>
+<button class="ghost" id="tYt">YouTube</button>
+</div>
+<ul id="list"></ul>
+<section id="yt" hidden>
+<div id="keybox" hidden>
+<p>Pour chercher sur YouTube, il faut votre propre clé « YouTube Data API v3 » (gratuite, environ 100 recherches par jour). Console Google Cloud : créer un projet, activer l'API, puis Identifiants > Clé API. Limitez-la à l'adresse de votre site. Elle reste uniquement dans ce navigateur.</p>
+<div class="bar"><input id="kin" type="password" placeholder="Clé API" autocomplete="off" style="flex:1 1 160px;min-width:0;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit"><button class="btn" id="ksave">Enregistrer</button></div>
+</div>
+<div class="bar"><input id="yq" type="search" placeholder="Titre ou artiste sur YouTube" aria-label="Recherche YouTube" style="flex:1 1 160px;min-width:0;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit"><button class="btn" id="ygo">Chercher</button><button class="ghost" id="ykey">Clé API</button></div>
+<div class="bar"><button class="ghost on" id="yRes">Résultats</button><button class="ghost" id="ySaved">Mes titres</button></div>
+<p class="note">Lecture via le lecteur officiel YouTube : ses publicités éventuelles ne peuvent pas être retirées ici, et le son s'arrête en général écran verrouillé (sauf avec YouTube Premium).</p>
+<ul id="ylist"></ul>
+</section>
+<div id="foot"></div>
+</main>
+
+<div id="player"><div>
+<div id="now">Aucun titre<small>Ajoutez de la musique pour commencer</small></div>
+<div class="seek"><span id="cur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Position"><span id="dur">0:00</span></div>
+<div class="ctl">
+<button class="m" id="shuf">Aléatoire</button>
+<button class="n" id="prev" aria-label="Précédent">⏮</button>
+<button class="p" id="pp" aria-label="Lecture">▶</button>
+<button class="n" id="next" aria-label="Suivant">⏭</button>
+<button class="m" id="rep">Boucle : non</button>
+<input type="range" id="vol" min="0" max="100" value="100" aria-label="Volume">
+</div></div></div>
+
+<input type="file" id="file" accept="audio/*,.mp3,.m4a,.aac,.ogg,.opus,.wav,.flac" multiple hidden>
+<div id="toast"></div>
+<div id="drop">Déposez vos fichiers audio</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const A=new Audio();
+let lib=[],set={vol:1,shuf:false,rep:0,last:null},curId=null,tab='all',q='',url=null;
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('s');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('s'),2600)}
+
+/* Métadonnées (liste, favoris, réglages) : localStorage */
+function load(){try{lib=JSON.parse(localStorage.getItem('zik:lib'))||[]}catch(e){lib=[]}
+try{Object.assign(set,JSON.parse(localStorage.getItem('zik:set'))||{})}catch(e){}}
+function save(){try{localStorage.setItem('zik:lib',JSON.stringify(lib));localStorage.setItem('zik:set',JSON.stringify(set))}catch(e){}}
+
+/* Fichiers audio : IndexedDB (localStorage est limité à ~5 Mo) */
+const db=new Promise((res,rej)=>{try{const r=indexedDB.open('zik',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});
+const tx=(m,f)=>db.then(d=>new Promise((res,rej)=>{const t=d.transaction('f',m);const r=f(t.objectStore('f'));t.oncomplete=()=>res(r.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)}));
+
+function getDur(f){return new Promise(r=>{const a=new Audio(),u=URL.createObjectURL(f);a.preload='metadata';
+a.onloadedmetadata=()=>{r(a.duration||0);URL.revokeObjectURL(u)};a.onerror=()=>{r(0);URL.revokeObjectURL(u)};a.src=u})}
+
+async function add(files){let n=0;
+for(const f of files){
+if(!(f.type||'').startsWith('audio')&&!/\.(mp3|m4a|aac|ogg|opus|wav|flac|webm)$/i.test(f.name))continue;
+const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+try{await tx('readwrite',s=>s.put(f,id))}catch(e){toast('Stockage plein ou indisponible');break}
+lib.push({id,name:f.name.replace(/\.[^.]+$/,''),size:f.size,dur:await getDur(f),fav:0});n++}
+save();render();if(n)toast(n+' titre'+(n>1?'s':'')+' ajouté'+(n>1?'s':''))}
+
+function visible(){const s=q.toLowerCase();return lib.filter(t=>(tab=='all'||t.fav)&&t.name.toLowerCase().includes(s))}
+const split=t=>{const i=t.name.indexOf(' - ');return i>0?[t.name.slice(i+3),t.name.slice(0,i)]:[t.name,'Artiste inconnu']};
+
+function render(){const v=visible(),ul=$('#list');
+if(!v.length){ul.innerHTML='<div class="empty"><p>'+(lib.length?'Aucun résultat.':'Votre bibliothèque est vide. Ajoutez des fichiers audio de votre appareil, ils restent dans ce navigateur.')+'</p>'+(lib.length?'':'<button class="btn" id="add2">Ajouter des titres</button>')+'</div>';
+const b=$('#add2');if(b)b.onclick=()=>$('#file').click()}
+else ul.innerHTML=v.map(t=>{const [ti,ar]=split(t);return '<li class="'+(t.id==curId?'cur':'')+'"><button class="t" data-p="'+t.id+'"><b>'+esc(ti)+'</b><span>'+esc(ar)+' · '+fmt(t.dur)+'</span></button><button class="i f" data-f="'+t.id+'" aria-label="Favori">'+(t.fav?'♥':'♡')+'</button><button class="i" data-d="'+t.id+'" aria-label="Supprimer">✕</button></li>'}).join('');
+const mb=(lib.reduce((a,t)=>a+t.size,0)/1048576).toFixed(1);
+$('#foot').textContent=lib.length+' titre'+(lib.length>1?'s':'')+' · '+mb+' Mo sur cet appareil · aucune pub, aucun compte'}
+
+async function play(id){const t=lib.find(x=>x.id==id);if(!t)return;stopYt();
+let b;try{b=await tx('readonly',s=>s.get(id))}catch(e){}
+if(!b){toast('Fichier introuvable');return}
+if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(b);A.src=url;curId=id;set.last=id;save();
+const [ti,ar]=split(t);$('#now').innerHTML=esc(ti)+'<small>'+esc(ar)+'</small>';
+try{navigator.mediaSession.metadata=new MediaMetadata({title:ti,artist:ar})}catch(e){}
+try{await A.play()}catch(e){}render()}
+
+function step(d,auto){const v=visible();if(!v.length)return;let i=v.findIndex(t=>t.id==curId),n;
+if(set.shuf&&v.length>1){do{n=Math.floor(Math.random()*v.length)}while(n==i)}
+else{n=i+d;if(n>=v.length){if(set.rep==1||!auto)n=0;else{A.pause();return}}if(n<0)n=v.length-1}
+play(v[n].id)}
+
+$('#pp').onclick=()=>{if(ymode){yp.getPlayerState()==1?yp.pauseVideo():yp.playVideo();return}if(!A.src){const id=curId||set.last||(visible()[0]||{}).id;if(id)play(id);return}A.paused?A.play():A.pause()};
+$('#next').onclick=()=>ymode?stepYt(1):step(1);
+$('#prev').onclick=()=>{if(ymode){if(yp.getCurrentTime()>3)yp.seekTo(0,true);else stepYt(-1);return}if(A.currentTime>3)A.currentTime=0;else step(-1)};
+$('#shuf').onclick=()=>{set.shuf=!set.shuf;save();ui()};
+$('#rep').onclick=()=>{set.rep=(set.rep+1)%3;save();ui()};
+$('#vol').oninput=e=>{set.vol=e.target.value/100;A.volume=set.vol;if(yp&&yp.setVolume)yp.setVolume(set.vol*100);save()};
+$('#seek').oninput=e=>{if(ymode){const d=yp.getDuration();if(d)yp.seekTo(d*e.target.value/1000,true);return}if(A.duration)A.currentTime=A.duration*e.target.value/1000};
+A.onplay=A.onpause=()=>{if(ymode)return;$('#pp').textContent=A.paused?'▶':'❚❚'};
+A.ontimeupdate=()=>{$('#cur').textContent=fmt(A.currentTime);if(A.duration)$('#seek').value=A.currentTime/A.duration*1000};
+A.onloadedmetadata=()=>{$('#dur').textContent=fmt(A.duration)};
+A.onended=()=>{if(set.rep==2){A.currentTime=0;A.play()}else step(1,true)};
+A.onerror=()=>{if(A.src)toast('Lecture impossible (format non pris en charge ?)')};
+try{const m=navigator.mediaSession;m.setActionHandler('play',()=>ymode?yp.playVideo():A.play());m.setActionHandler('pause',()=>ymode?yp.pauseVideo():A.pause());m.setActionHandler('nexttrack',()=>ymode?stepYt(1):step(1));m.setActionHandler('previoustrack',()=>ymode?stepYt(-1):step(-1))}catch(e){}
+
+function ui(){$('#shuf').classList.toggle('on',set.shuf);const r=$('#rep');r.textContent='Boucle : '+['non','tout','titre'][set.rep];r.classList.toggle('on',set.rep>0);$('#vol').value=set.vol*100;A.volume=set.vol}
+
+$('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+if(b.dataset.p)play(b.dataset.p);
+else if(b.dataset.f){const t=lib.find(x=>x.id==b.dataset.f);t.fav=t.fav?0:1;save();render()}
+else if(b.dataset.d){const id=b.dataset.d;if(!confirm('Supprimer ce titre de la bibliothèque ?'))return;
+try{await tx('readwrite',s=>s.delete(id))}catch(e){}
+lib=lib.filter(t=>t.id!=id);if(curId==id){A.pause();A.removeAttribute('src');curId=null;$('#now').innerHTML='Aucun titre<small>Choisissez un titre</small>'}save();render()}};
+$('#add').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{add([...e.target.files]);e.target.value=''};
+$('#q').oninput=e=>{q=e.target.value;render()};
+function setTab(t){tab=t;[['all','#tAll'],['fav','#tFav'],['yt','#tYt']].forEach(([k,id])=>$(id).classList.toggle('on',k==t));
+$('#list').hidden=$('#q').hidden=t=='yt';$('#yt').hidden=t!='yt';if(t=='yt')yrender();else render()}
+$('#tAll').onclick=()=>setTab('all');$('#tFav').onclick=()=>setTab('fav');$('#tYt').onclick=()=>setTab('yt');
+
+let dc=0;
+addEventListener('dragenter',e=>{e.preventDefault();dc++;$('#drop').classList.add('s')});
+addEventListener('dragleave',()=>{if(--dc<=0){dc=0;$('#drop').classList.remove('s')}});
+addEventListener('dragover',e=>e.preventDefault());
+addEventListener('drop',e=>{e.preventDefault();dc=0;$('#drop').classList.remove('s');add([...e.dataTransfer.files])});
+addEventListener('keydown',e=>{if(e.target.tagName=='INPUT'&&e.target.type!='range')return;if(e.code=='Space'){e.preventDefault();$('#pp').click()}});
+
+/* ===== YouTube (API officielle + lecteur intégré) ===== */
+let yp=null,ymode=false,yTrack=null,yList=[],ytimer,yres=[],ytab='res',ysaved=[];
+try{ysaved=JSON.parse(localStorage.getItem('zik:yt'))||[]}catch(e){}
+const ysave=()=>{try{localStorage.setItem('zik:yt',JSON.stringify(ysaved))}catch(e){}};
+const dec=s=>{const t=document.createElement('textarea');t.innerHTML=s;return t.value};
+function ytLoad(){return new Promise(r=>{if(window.YT&&YT.Player)return r(true);window.onYouTubeIframeAPIReady=()=>r(true);const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';s.onerror=()=>r(false);document.head.appendChild(s)})}
+function stopYt(){ymode=false;clearInterval(ytimer);try{yp&&yp.pauseVideo()}catch(e){}$('#vwrap').hidden=true}
+function ytick(){if(!ymode||!yp||!yp.getCurrentTime)return;const c=yp.getCurrentTime(),d=yp.getDuration();$('#cur').textContent=fmt(c);$('#dur').textContent=fmt(d);if(d)$('#seek').value=c/d*1000}
+function ys(e){if(!ymode)return;const s=e.data;$('#pp').textContent=s==1?'❚❚':'▶';
+if(s==1){clearInterval(ytimer);ytimer=setInterval(ytick,500)}else if(s==2)clearInterval(ytimer);
+if(s==0){clearInterval(ytimer);if(set.rep==2){yp.seekTo(0);yp.playVideo()}else stepYt(1,true)}}
+async function playYt(t,list){
+if(!navigator.onLine){toast('Hors ligne : YouTube nécessite une connexion');return}
+if(!await ytLoad()){toast('YouTube est inaccessible');return}
+A.pause();ymode=true;yTrack=t;if(list)yList=list;$('#vwrap').hidden=false;
+if(!yp){yp=new YT.Player('vp',{width:'100%',height:'100%',videoId:t.id,playerVars:{playsinline:1,autoplay:1,rel:0},events:{onReady:e=>{e.target.setVolume(set.vol*100);e.target.playVideo()},onStateChange:ys,onError:()=>{toast('Vidéo non lisible ici, titre suivant');stepYt(1,true)}}})}
+else yp.loadVideoById(t.id);
+$('#now').innerHTML=esc(t.title)+'<small>'+esc(t.ch)+' · YouTube</small>';
+try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.ch})}catch(e){}
+yrender()}
+function stepYt(d,auto){const l=yList;if(!l.length||!yTrack)return;let i=l.findIndex(t=>t.id==yTrack.id),n;
+if(set.shuf&&l.length>1){do{n=Math.floor(Math.random()*l.length)}while(n==i)}
+else{n=i+d;if(n>=l.length){if(set.rep==1||!auto)n=0;else return}if(n<0)n=l.length-1}
+playYt(l[n],l)}
+function yrender(){const l=ytab=='res'?yres:ysaved;
+$('#ylist').innerHTML=l.length?l.map(t=>'<li class="'+(ymode&&yTrack&&yTrack.id==t.id?'cur':'')+'"><button class="t" data-y="'+t.id+'"><b>'+esc(t.title)+'</b><span>'+esc(t.ch)+'</span></button><button class="i f" data-s="'+t.id+'" aria-label="Garder">'+(ysaved.some(x=>x.id==t.id)?'♥':'♡')+'</button></li>').join(''):'<div class="empty"><p>'+(ytab=='res'?'Tapez un titre ou un artiste, puis touchez Chercher.':'Aucun titre gardé. Touchez ♡ sur un résultat pour le retrouver ici.')+'</p></div>'}
+function ysetTab(t){ytab=t;$('#yRes').classList.toggle('on',t=='res');$('#ySaved').classList.toggle('on',t=='saved');yrender()}
+function keybox(show){$('#keybox').hidden=!show;if(show)$('#kin').value=set.ykey||''}
+async function ysearch(){const s=$('#yq').value.trim();if(!s)return;if(!set.ykey){keybox(true);return}
+try{const r=await fetch('https://www.googleapis.com/youtube/v3/search?'+new URLSearchParams({part:'snippet',type:'video',videoCategoryId:'10',videoEmbeddable:'true',maxResults:'25',q:s,key:set.ykey}));
+const j=await r.json();if(j.error){toast(j.error.code==403?'Quota dépassé ou API non activée':'Clé API refusée');return}
+yres=(j.items||[]).map(i=>({id:i.id.videoId,title:dec(i.snippet.title),ch:dec(i.snippet.channelTitle)}));ysetTab('res')}
+catch(e){toast('Recherche impossible (hors ligne ?)')}}
+$('#ykey').onclick=()=>keybox($('#keybox').hidden);
+$('#ksave').onclick=()=>{set.ykey=$('#kin').value.trim();save();keybox(false);toast('Clé enregistrée')};
+$('#ygo').onclick=ysearch;$('#yq').onkeydown=e=>{if(e.key=='Enter')ysearch()};
+$('#yRes').onclick=()=>ysetTab('res');$('#ySaved').onclick=()=>ysetTab('saved');
+$('#ylist').onclick=e=>{const b=e.target.closest('button');if(!b)return;const l=ytab=='res'?yres:ysaved;
+if(b.dataset.y){const t=l.find(x=>x.id==b.dataset.y);if(t)playYt(t,l)}
+else if(b.dataset.s){const t=l.find(x=>x.id==b.dataset.s);if(!t)return;const i=ysaved.findIndex(x=>x.id==t.id);if(i>=0)ysaved.splice(i,1);else ysaved.push(t);ysave();yrender()}};
+
+let dip;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e;$('#inst').hidden=false});
+$('#inst').onclick=async()=>{if(!dip)return;dip.prompt();await dip.userChoice;dip=null;$('#inst').hidden=true};
+addEventListener('appinstalled',()=>{$('#inst').hidden=true});
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+load();ui();render();
+if(set.last){const t=lib.find(x=>x.id==set.last);if(t){curId=t.id;const [ti,ar]=split(t);$('#now').innerHTML=esc(ti)+'<small>'+esc(ar)+'</small>';render()}}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+</script>
+</body>
+</html>
